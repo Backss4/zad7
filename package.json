@@ -1,0 +1,29 @@
+{
+  "name": "zad7",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Backss4/zad7.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Backss4/zad7/issues"
+  },
+  "homepage": "https://github.com/Backss4/zad7#readme",
+  "engines": {
+    "node": "10.16.0"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "start-dev": "nodemon server.mjs"
+  },
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
