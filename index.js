@@ -22,8 +22,8 @@ passport.deserializeUser(function(obj, done) {
 });
 
 passport.use(new GoogleStrategy({
-    clientID:     google_data.web.client_id,
-    clientSecret: google_data.web.client_secret,
+    clientID:     process.env.GOOGLE_CLIENT,
+    clientSecret: process.env.GOOGLE_SECRET,
     callbackURL: "https://i228678.herokuapp.com/auth/google/callback",
     passReqToCallback: true
   },
@@ -36,8 +36,8 @@ passport.use(new GoogleStrategy({
 
 
 passport.use(new FacebookStrategy({
-    clientID: facebook_data.web.app_id,
-    clientSecret: facebook_data.web.secret,
+    clientID: process.env.FACEBOOK_CLIENT,
+    clientSecret: process.env.FACEBOOK_SECRET,
     callbackURL: "https://i228678.herokuapp.com/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
@@ -50,8 +50,6 @@ passport.use(new FacebookStrategy({
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(cookieParser());
-//app.use(express.bodyParser());
-//app.use(express.methodOverride());
 app.use(session({
     secret: 'sdadasdsa',
     resave: false,
