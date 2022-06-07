@@ -8,10 +8,8 @@ const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth2')
 const FacebookStrategy = require('passport-facebook')
 
-const google_data = require('./google.secret.json')
-const facebook_data = require('./facebook.secret.json')
-
-console.log(google_data)
+//const google_data = require('./google.secret.json')
+//const facebook_data = require('./facebook.secret.json')
 
 passport.serializeUser(function(user, done) {
     done(null, user);
