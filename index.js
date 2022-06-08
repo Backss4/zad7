@@ -60,7 +60,7 @@ passport.use(new GoogleStrategy({
         if(res.rowCount === 1) {
           const user = res.rows[0]
           console.log(user)
-          pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
+          pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP, counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
             done(null, user);
           }).catch((err) => {
             console.log(err)
