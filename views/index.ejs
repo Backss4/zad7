@@ -8,27 +8,40 @@
     <body>
         <div class="container-sm">
             <%- include("header") %>
-            <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Imię</th>
-                    <th scope="col">Dołączył</th>
-                    <th scope="col">Ostatnie logowanie</th>
-                    <th scope="col">Liczba wizyt</th>
-                    <th scope="col">Zalogowany z</th>
-                    <th scope="col">Znak zodiaku</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                  </tr>
-                </tbody>
-              </table>
+            <% if(users){ %>
+                <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Imię</th>
+                        <th scope="col">Dołączył</th>
+                        <th scope="col">Ostatnie logowanie</th>
+                        <th scope="col">Liczba wizyt</th>
+                        <th scope="col">Zalogowany z</th>
+                        <th scope="col">Znak zodiaku</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <% for(var i=0; i<users.length; i++) {%>
+                            <tr>
+                                <th scope="row"><%= i %></th>
+                                <td><% users[i].name %></td>
+                                <td><% users[i].joined %></td>
+                                <td><% users[i].lastvisit %></td>
+                                <td><% users[i].counter</td>
+                                <td><% users[i].provider</td>
+                                <td><% users[i].znak_zodiaku</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                  </table>
+            <% } else { %>
+                <% if(error){ %>
+                    <p><%= error %></p>
+                <% } else { %>
+                    <p>Tak nie powinno być, skontaktuj się z administratorem.</p>
+                <% } %>
+            <% } %>
         </div>
     </body>
 </html>
