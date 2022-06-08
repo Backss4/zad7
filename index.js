@@ -65,7 +65,7 @@ function ensureAuthenticated(req, res, next) {
 }
 
 app.get('/', ensureAuthenticated, (req, res) => {
-    const display_name = req.user.display_name
+    const display_name = req.user.displayName
     const image = req.user.picture ? req.user.picture : null
     res.render('profile', {
         display_name: display_name,
