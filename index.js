@@ -38,9 +38,12 @@ pool.query('DELETE FROM users WHERE true').then(() => {
 
 passport.deserializeUser(async function(id, done) {
   pool.query("SELECT * FROM users WHERE id = $1", [id])
-  .then((user) => {
-    console.log(user)
-    done(null, user);
+  .then((res) => {
+    if(res.rowCount === 1) {
+      done(null, user);
+    } else {
+      done(new Error(`User with the id ${id} does not exist`));
+    }
   })
   .catch((err) => {
     done(new Error(`User with the id ${id} does not exist`));
@@ -59,11 +62,9 @@ passport.use(new GoogleStrategy({
       .then((res) => {
         if(res.rowCount === 1) {
           const user = res.rows[0]
-          console.log(user)
           pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP, counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
             done(null, user);
           }).catch((err) => {
-            console.log(err)
             done(new Error(`Failed to update user!`));
           })
         } else {
@@ -80,7 +81,6 @@ passport.use(new GoogleStrategy({
         }
       })
       .catch((err) => {
-        console.log(err)
         done(new Error('Failed to login!'));
       })
   }
@@ -93,29 +93,31 @@ passport.use(new FacebookStrategy({
     callbackURL: "https://i228678.herokuapp.com/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
-    console.log(profile)
-    // pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'facebook\'', [profile.sub])
-    // .then((res) => {
-    //   const user = res.rows[0]
-    //   pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
-    //     done(null, user);
-    //   }).catch((err) => {
-    //     done(new Error(`Failed to update user!`));
-    //   })
-    // })
-    // .catch((err) => {
-    //   console.log(err)
-    //   const values = [
-    //     profile.displayName,
-    //     profile.sub,
-    //     get_random(znaki_zodiaku)
-    //   ]
-    //   pool.query('INSERT INTO users (name, external_id, provider, znak_zodiaku) VALUES ($1, $2, \'google\', $3) RETURNING *', values).then((ret) => {
-    //     done(null, ret.rows[0])
-    //   }).catch((err) => {
-    //     done(new Error(`Failed to create user!`));
-    //   })
-    // })
+    pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'facebook\'', [profile.id])
+      .then((res) => {
+        if(res.rowCount === 1) {
+          const user = res.rows[0]
+          pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP, counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
+            done(null, user);
+          }).catch((err) => {
+            done(new Error(`Failed to update user!`));
+          })
+        } else {
+          const values = [
+            profile.displayName,
+            profile.id,
+            get_random(znaki_zodiaku)
+          ]
+          pool.query('INSERT INTO users (name, external_id, provider, znak_zodiaku) VALUES ($1, $2, \'facebook\', $3) RETURNING *', values).then((ret) => {
+            done(null, ret.rows[0])
+          }).catch((err) => {
+            done(new Error(`Failed to create user!`));
+          })
+        }
+      })
+      .catch((err) => {
+        done(new Error('Failed to login!'));
+      })
   }
 ))
 
@@ -142,11 +144,19 @@ function ensureAuthenticated(req, res, next) {
 }
 
 app.get('/', ensureAuthenticated, (req, res) => {
-    const display_name = req.user.displayName
-    const image = req.user.picture ? req.user.picture : null
-    res.render('profile', {
-        display_name: display_name,
-        image: image
+    console.log(req.user)
+    pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'facebook\'', [profile.id])
+    .then((res) => {
+      res.render('index', {
+        user: req.user,
+        users: res.rows
+      })
+    }).catch((err) => {
+      console.log(err)
+      res.render('index', {
+        user: req.user,
+        users: 'Coś poszło nie tak'
+      })
     })
 })
 
