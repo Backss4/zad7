@@ -67,8 +67,8 @@ passport.use(new GoogleStrategy({
           profile.sub,
           get_random(znaki_zodiaku)
         ]
-        pool.query('INSERT INTO user (name, external_id, provider, znak_zodiaku) VALUES($1, $2, "google", $3', values).then((user) => {
-          console.log(user)
+        pool.query('INSERT INTO user (name, external_id, provider, znak_zodiaku) VALUES ($1, $2, "google", $3) RETURNING *', values).then((ret) => {
+          console.log(ret.rows[0])
         }).catch((err) => {
           console.log(err)
           done(new Error(`Failed to create user!`));
