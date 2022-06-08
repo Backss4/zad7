@@ -40,7 +40,7 @@ passport.deserializeUser(function(id, done) {
   pool.query("SELECT * FROM users WHERE id = $1", [id])
   .then((res) => {
     if(res.rowCount === 1) {
-      done(null, user);
+      done(null, res.rows[0]);
     } else {
       done(new Error(`User with the id ${id} does not exist`));
     }
