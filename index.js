@@ -100,7 +100,7 @@ app.get('/auth/facebook/callback',
     res.redirect('/');
 });
 
-app.get('/auth/logout', (req, res) => {
+app.get('/auth/logout', (req, res, next) => {
     req.logout(function(err) {
         if (err) { return next(err); }
         res.redirect('/');
