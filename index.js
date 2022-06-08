@@ -39,6 +39,7 @@ pool.query('DELETE FROM users WHERE true').then(() => {
 passport.deserializeUser(async function(id, done) {
   pool.query("SELECT * FROM users WHERE id = $1", [id])
   .then((user) => {
+    console.log(user)
     done(null, user);
   })
   .catch((err) => {
@@ -55,26 +56,30 @@ passport.use(new GoogleStrategy({
   function(request, accessToken, refreshToken, profile, done) {
       //console.log(profile)
       pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'google\'', [profile.sub])
-      .then((user) => {
-        console.log(user)
-        pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
-          done(null, user);
-        }).catch((err) => {
-          done(new Error(`Failed to update user!`));
-        })
+      .then((res) => {
+        if(res.rowCount == 1) {
+          const user = res.rows[0]
+          pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
+            done(null, user);
+          }).catch((err) => {
+            done(new Error(`Failed to update user!`));
+          })
+        } else {
+          const values = [
+            profile.displayName,
+            profile.sub,
+            get_random(znaki_zodiaku)
+          ]
+          pool.query('INSERT INTO users (name, external_id, provider, znak_zodiaku) VALUES ($1, $2, \'google\', $3) RETURNING *', values).then((ret) => {
+            done(null, ret.rows[0])
+          }).catch((err) => {
+            done(new Error(`Failed to create user!`));
+          })
+        }
       })
       .catch((err) => {
         console.log(err)
-        const values = [
-          profile.displayName,
-          profile.sub,
-          get_random(znaki_zodiaku)
-        ]
-        pool.query('INSERT INTO users (name, external_id, provider, znak_zodiaku) VALUES ($1, $2, \'google\', $3) RETURNING *', values).then((ret) => {
-          done(null, ret.rows[0])
-        }).catch((err) => {
-          done(new Error(`Failed to create user!`));
-        })
+        done(new Error('Failed to login!'));
       })
   }
 ));
