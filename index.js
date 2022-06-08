@@ -9,16 +9,33 @@ const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth2')
 const FacebookStrategy = require('passport-facebook')
 
+const { Pool } = require('pg').Pool
+const pool = new Pool(
+  process.env.DATABASE_URL
+)
+
 //const google_data = require('./google.secret.json')
 //const facebook_data = require('./facebook.secret.json')
 
+const znaki_zodiaku = ['kot', 'mysz', 'dinozaur']
+
+function get_random (list) {
+  return list[Math.floor((Math.random()*list.length))];
+}
+
 passport.serializeUser(function(user, done) {
-    done(null, user);
+    done(null, user.id);
 });
 
-passport.deserializeUser(function(obj, done) {
-    //pobrać dane z bazy
-    done(null, obj);
+passport.deserializeUser(async function(id, done) {
+  pool.query("SELECT * FROM user" +
+    "WHERE id = $1", [id])
+  .then((user)=>{
+    done(null, user);
+  })
+  .catch((err)=>{
+    done(new Error(`User with the id ${id} does not exist`));
+  })
 });
 
 passport.use(new GoogleStrategy({
@@ -28,8 +45,30 @@ passport.use(new GoogleStrategy({
     passReqToCallback: true
   },
   function(request, accessToken, refreshToken, profile, done) {
-      process.nextTick(() => {
-        return done(null, profile)
+      // process.nextTick(() => {
+      //   return done(null, profile)
+      // })
+      pool.query("SELECT * FROM user" +
+        "WHERE external_id = $1, provider = google", [profile.sub])
+      .then((user) => {
+        console.log(user)
+        pool.query("UPDATE user SET lastvisit=CURRENT_TIMESTAMP(), counter = $1", user.counter).then(() => {
+          done(null, user);
+        }).catch((err) => {
+          done(new Error(`Failed to update user!`));
+        })
+      })
+      .catch((err) => {
+        const values = [
+          profile.displayName,
+          profile.sub,
+          get_random(znaki_zodiaku)
+        ]
+        pool.query('INSERT INTO user (name, external_id, provider, znak_zodiaku) VALUES($1, $2, "google", $3', values).then((user) => {
+          console.log(user)
+        }).catch((err) => {
+          done(new Error(`Failed to create user!`));
+        })
       })
   }
 ));
@@ -65,7 +104,6 @@ app.use(passport.session());
 
 
 function ensureAuthenticated(req, res, next) {
-    console.log(req.user)
     if (req.isAuthenticated()) { return next(); }
     res.redirect('/login')
 }
