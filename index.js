@@ -51,6 +51,7 @@ passport.use(new GoogleStrategy({
       // process.nextTick(() => {
       //   return done(null, profile)
       // })
+      console.log(profile)
       pool.query("SELECT * FROM users" +
         "WHERE external_id = $1, provider = google", [profile.sub])
       .then((user) => {
