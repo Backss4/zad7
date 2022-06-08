@@ -17,6 +17,7 @@ const pool = new Pool({
   }
 })
 
+//Localhost testing
 //const google_data = require('./google.secret.json')
 //const facebook_data = require('./facebook.secret.json')
 
@@ -25,12 +26,6 @@ const znaki_zodiaku = ['kot', 'mysz', 'dinozaur']
 function get_random (list) {
   return list[Math.floor((Math.random()*list.length))];
 }
-
-pool.query('DELETE FROM users WHERE true').then(() => {
-  console.log('Cleared users table')
-}).catch((err) => {
-  console.log(err)
-})
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -58,7 +53,6 @@ passport.use(new GoogleStrategy({
     passReqToCallback: true
   },
   function(request, accessToken, refreshToken, profile, done) {
-      //console.log(profile)
       pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'google\'', [profile.sub])
       .then((res) => {
         if(res.rowCount === 1) {
