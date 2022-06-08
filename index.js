@@ -146,7 +146,7 @@ function ensureAuthenticated(req, res, next) {
 
 app.get('/', ensureAuthenticated, (req, res) => {
     console.log(req.user)
-    pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'facebook\'', [profile.id])
+    pool.query('SELECT * FROM users')
     .then((res) => {
       res.render('index', {
         user: req.user,
