@@ -30,9 +30,10 @@ passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
 
+pool.query('DELETE FROM users WHERE 1')
+
 passport.deserializeUser(async function(id, done) {
-  pool.query("SELECT * FROM users" +
-    "WHERE id = $1", [id])
+  pool.query("SELECT * FROM users WHERE id = $1", [id])
   .then((user) => {
     done(null, user);
   })
@@ -52,7 +53,7 @@ passport.use(new GoogleStrategy({
       pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'google\'', [profile.sub])
       .then((user) => {
         console.log(user)
-        pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1", user.counter).then(() => {
+        pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
           done(null, user);
         }).catch((err) => {
           done(new Error(`Failed to update user!`));
