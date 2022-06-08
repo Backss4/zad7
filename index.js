@@ -57,6 +57,7 @@ passport.use(new GoogleStrategy({
       pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'google\'', [profile.sub])
       .then((res) => {
         const user = res.rows[0]
+        console.log(user)
         pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
           done(null, user);
         }).catch((err) => {
