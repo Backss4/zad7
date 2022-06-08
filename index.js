@@ -101,8 +101,10 @@ app.get('/auth/facebook/callback',
 });
 
 app.get('/auth/logout', (req, res) => {
-    req.logout();
-    res.redirect('/')
+    req.logout(function(err) {
+        if (err) { return next(err); }
+        res.redirect('/');
+    });
 });
 
 
