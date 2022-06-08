@@ -63,7 +63,7 @@ passport.use(new GoogleStrategy({
       .then((res) => {
         if(res.rowCount === 1) {
           const user = res.rows[0]
-          pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP, counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
+          pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP, counter = $1 WHERE id = $2", [user.counter + 1, user.id]).then(() => {
             done(null, user);
           }).catch((err) => {
             done(new Error(`Failed to update user!`));
@@ -74,7 +74,7 @@ passport.use(new GoogleStrategy({
             profile.sub,
             get_random(znaki_zodiaku)
           ]
-          pool.query('INSERT INTO users (name, external_id, provider, znak_zodiaku) VALUES ($1, $2, \'google\', $3) RETURNING *', values).then((ret) => {
+          pool.query('INSERT INTO users (name, external_id, provider, znak_zodiaku, counter) VALUES ($1, $2, \'google\', $3, 1) RETURNING *', values).then((ret) => {
             done(null, ret.rows[0])
           }).catch((err) => {
             done(new Error(`Failed to create user!`));
@@ -146,7 +146,7 @@ function ensureAuthenticated(req, res, next) {
 
 app.get('/', ensureAuthenticated, (req, res) => {
     console.log(req.user)
-    pool.query('SELECT * FROM users')
+    pool.query('SELECT * FROM users ORDER BY id ASC')
     .then((result) => {
       res.render('index', {
         user: req.user,
