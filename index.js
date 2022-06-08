@@ -139,7 +139,6 @@ function ensureAuthenticated(req, res, next) {
 }
 
 app.get('/', ensureAuthenticated, (req, res) => {
-    console.log(req.user)
     pool.query('SELECT * FROM users ORDER BY id ASC')
     .then((result) => {
       res.render('index', {
