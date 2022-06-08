@@ -10,9 +10,9 @@ const GoogleStrategy = require('passport-google-oauth2')
 const FacebookStrategy = require('passport-facebook')
 
 const { Pool } = require('pg')
-const pool = new Pool(
-  process.env.DATABASE_URL
-)
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+})
 
 //const google_data = require('./google.secret.json')
 //const facebook_data = require('./facebook.secret.json')
