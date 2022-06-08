@@ -38,8 +38,8 @@ pool.query('DELETE FROM users WHERE true').then(() => {
 
 passport.deserializeUser(async function(id, done) {
   pool.query("SELECT * FROM users WHERE id = $1", [id])
-  .then((res) => {
-    done(null, res.rows[0]);
+  .then((user) => {
+    done(null, user);
   })
   .catch((err) => {
     done(new Error(`User with the id ${id} does not exist`));
@@ -55,9 +55,7 @@ passport.use(new GoogleStrategy({
   function(request, accessToken, refreshToken, profile, done) {
       //console.log(profile)
       pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'google\'', [profile.sub])
-      .then((res) => {
-        const user = res.rows[0]
-        console.log(user)
+      .then((user) => {
         pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
           done(null, user);
         }).catch((err) => {
