@@ -30,7 +30,11 @@ passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
 
-pool.query('DELETE FROM users WHERE 1')
+pool.query('DELETE FROM users WHERE 1').then(() => {
+  console.log('Cleared users table')
+}).catch((err) => {
+  console.log(err)
+})
 
 passport.deserializeUser(async function(id, done) {
   pool.query("SELECT * FROM users WHERE id = $1", [id])
