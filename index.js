@@ -65,7 +65,12 @@ function ensureAuthenticated(req, res, next) {
 }
 
 app.get('/', ensureAuthenticated, (req, res) => {
-    res.render('profile')
+    const display_name = req.user.display_name
+    const image = req.user.picture ?? null
+    res.render('profile', {
+        display_name: display_name,
+        image: image
+    })
 })
 
 app.get('/login', (req, res) => {
@@ -93,6 +98,11 @@ app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/auth/failure' }),
   (req, res) => {
     res.redirect('/');
+});
+
+app.get('/auth/logout', (req, res) => {
+    req.logout();
+    res.redirect('/')
 });
 
 
