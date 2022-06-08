@@ -31,12 +31,12 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(async function(id, done) {
-  pool.query("SELECT * FROM user" +
+  pool.query("SELECT * FROM users" +
     "WHERE id = $1", [id])
-  .then((user)=>{
+  .then((user) => {
     done(null, user);
   })
-  .catch((err)=>{
+  .catch((err) => {
     done(new Error(`User with the id ${id} does not exist`));
   })
 });
@@ -51,11 +51,11 @@ passport.use(new GoogleStrategy({
       // process.nextTick(() => {
       //   return done(null, profile)
       // })
-      pool.query("SELECT * FROM user" +
+      pool.query("SELECT * FROM users" +
         "WHERE external_id = $1, provider = google", [profile.sub])
       .then((user) => {
         console.log(user)
-        pool.query("UPDATE user SET lastvisit=CURRENT_TIMESTAMP(), counter = $1", user.counter).then(() => {
+        pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1", user.counter).then(() => {
           done(null, user);
         }).catch((err) => {
           done(new Error(`Failed to update user!`));
@@ -67,7 +67,7 @@ passport.use(new GoogleStrategy({
           profile.sub,
           get_random(znaki_zodiaku)
         ]
-        pool.query('INSERT INTO user(name, external_id, provider, znak_zodiaku) VALUES ($1, $2, \'google\', $3) RETURNING *', values).then((ret) => {
+        pool.query('INSERT INTO users (name, external_id, provider, znak_zodiaku) VALUES ($1, $2, \'google\', $3) RETURNING *', values).then((ret) => {
           console.log(ret.rows[0])
         }).catch((err) => {
           console.log(err)
