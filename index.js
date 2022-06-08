@@ -38,8 +38,8 @@ pool.query('DELETE FROM users WHERE true').then(() => {
 
 passport.deserializeUser(async function(id, done) {
   pool.query("SELECT * FROM users WHERE id = $1", [id])
-  .then((user) => {
-    done(null, user);
+  .then((res) => {
+    done(null, res.rows[0]);
   })
   .catch((err) => {
     done(new Error(`User with the id ${id} does not exist`));
@@ -55,8 +55,8 @@ passport.use(new GoogleStrategy({
   function(request, accessToken, refreshToken, profile, done) {
       //console.log(profile)
       pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'google\'', [profile.sub])
-      .then((user) => {
-        console.log(user)
+      .then((res) => {
+        const user = res.rows[0]
         pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
           done(null, user);
         }).catch((err) => {
@@ -86,9 +86,29 @@ passport.use(new FacebookStrategy({
     callbackURL: "https://i228678.herokuapp.com/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
-    process.nextTick(function () {
-      return done(null, profile);
-    });
+    console.log(profile)
+    // pool.query('SELECT * FROM users WHERE external_id = $1 AND provider = \'facebook\'', [profile.sub])
+    // .then((res) => {
+    //   const user = res.rows[0]
+    //   pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
+    //     done(null, user);
+    //   }).catch((err) => {
+    //     done(new Error(`Failed to update user!`));
+    //   })
+    // })
+    // .catch((err) => {
+    //   console.log(err)
+    //   const values = [
+    //     profile.displayName,
+    //     profile.sub,
+    //     get_random(znaki_zodiaku)
+    //   ]
+    //   pool.query('INSERT INTO users (name, external_id, provider, znak_zodiaku) VALUES ($1, $2, \'google\', $3) RETURNING *', values).then((ret) => {
+    //     done(null, ret.rows[0])
+    //   }).catch((err) => {
+    //     done(new Error(`Failed to create user!`));
+    //   })
+    // })
   }
 ))
 
