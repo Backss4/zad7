@@ -63,6 +63,7 @@ passport.use(new GoogleStrategy({
           pool.query("UPDATE users SET lastvisit=CURRENT_TIMESTAMP(), counter = $1 WHERE id = $2", [user.counter, user.id]).then(() => {
             done(null, user);
           }).catch((err) => {
+            console.log(err)
             done(new Error(`Failed to update user!`));
           })
         } else {
