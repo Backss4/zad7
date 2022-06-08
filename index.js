@@ -147,10 +147,10 @@ function ensureAuthenticated(req, res, next) {
 app.get('/', ensureAuthenticated, (req, res) => {
     console.log(req.user)
     pool.query('SELECT * FROM users')
-    .then((res) => {
+    .then((result) => {
       res.render('index', {
         user: req.user,
-        users: res.rows
+        users: result.rows
       })
     }).catch((err) => {
       console.log(err)
