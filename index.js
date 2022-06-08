@@ -49,21 +49,19 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(cookieParser());
 app.use(session({
-    secret: 'sdadasdsa',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true }
+    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
+    saveUninitialized:true,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 },
+    resave: false 
 }))
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static(__dirname + '/public'));
 
 
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) { return next(); }
     res.redirect('/login')
 }
-
 
 app.get('/', ensureAuthenticated, (req, res) => {
     res.render('profile')
