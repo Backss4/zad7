@@ -3,6 +3,7 @@ const app = express()
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const port =  (process.env.PORT || 5000)
+const bodyParser = require('body-parser')
 
 const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth2')
@@ -16,6 +17,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(obj, done) {
+    //pobrać dane z bazy
     done(null, obj);
 });
 
@@ -50,10 +52,14 @@ app.set('view engine', 'ejs');
 app.use(cookieParser());
 app.use(session({
     secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
-    saveUninitialized:true,
+    saveUninitialized: true,
     cookie: { maxAge: 1000 * 60 * 60 * 24 },
     resave: false 
 }))
+app.use(bodyParser.urlencoded({
+  extended: true
+}))
+app.use(bodyParser.json())
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -105,6 +111,10 @@ app.get('/auth/logout', (req, res, next) => {
         res.redirect('/');
     });
 });
+
+app.get('/auth/failure', (req, res) => {
+  res.redirect('/');
+})
 
 
 app.listen(port, () => {
