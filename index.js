@@ -30,7 +30,7 @@ passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
 
-pool.query('DELETE FROM users WHERE 1').then(() => {
+pool.query('DELETE FROM users WHERE true').then(() => {
   console.log('Cleared users table')
 }).catch((err) => {
   console.log(err)
