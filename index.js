@@ -9,7 +9,7 @@ const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth2')
 const FacebookStrategy = require('passport-facebook')
 
-const { Pool } = require('pg').Pool
+const { Pool } = require('pg')
 const pool = new Pool(
   process.env.DATABASE_URL
 )
