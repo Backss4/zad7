@@ -26,17 +26,17 @@ function get_random (list) {
   return list[Math.floor((Math.random()*list.length))];
 }
 
-passport.serializeUser(function(user, done) {
-    done(null, user.id);
-});
-
 pool.query('DELETE FROM users WHERE true').then(() => {
   console.log('Cleared users table')
 }).catch((err) => {
   console.log(err)
 })
 
-passport.deserializeUser(async function(id, done) {
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
   pool.query("SELECT * FROM users WHERE id = $1", [id])
   .then((res) => {
     if(res.rowCount === 1) {
@@ -46,6 +46,7 @@ passport.deserializeUser(async function(id, done) {
     }
   })
   .catch((err) => {
+    console.log(err)
     done(new Error(`User with the id ${id} does not exist`));
   })
 });
